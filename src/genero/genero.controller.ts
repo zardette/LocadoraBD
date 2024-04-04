@@ -11,7 +11,7 @@ export class GeneroController{
              
     }
 
-    @Get('/listar')
+    @Get('listar')
     async listar(): Promise<GENERO[]>{
         return this.generoService.listar();
     }

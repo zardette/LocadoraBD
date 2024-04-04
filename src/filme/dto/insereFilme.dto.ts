@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsInt, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsInt, IsNotEmpty, IsString } from "class-validator";
+
+
 
 export class criaFilmeDTO{
     @IsString()
@@ -33,8 +35,8 @@ export class criaFilmeDTO{
 
     @IsString()
     @ApiProperty({
-        example: '20b4d2b8-c682-4e64-bc05-a32b76d4ba13',
-        description: `ID do genero do filme`,
+        example: 'Ação',
+        description: `Nome do genero do filme`,
     })
     GENERO: string;
 

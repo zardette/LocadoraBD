@@ -1,10 +1,9 @@
 export class ListaSeriesDTO{
     constructor(
-        readonly ID: string,
-        readonly NOMESERIE: string,
-        readonly EPSODIO: number,
-        readonly TEMPORADA: number,
-        readonly FILME: object            
+        readonly id: string,
+        readonly nomeSerie: string,
+        readonly episodio: string,
+        readonly temporada: string,             
         ){}
 }
 

@@ -68,5 +68,34 @@ export class criaUsuarioDTO{
         example: 'nomearquivo-idarquivo.png',
         description: `Esse campo é responsável pela foto do usuário, para ser enviado o dado correto é necessário que seja feito o upload pelo modulo FILES.`,
     })
-    foto: string; 
+    foto: string;
+    
+    @IsString()
+    @ApiProperty({
+        example: 'premium',
+        description: `tipo de assinatura`,
+    })
+    assinatura: Date;
+
+    @IsString()
+    @ApiProperty({
+        example: 'AV. Nações unidas',
+        description: `endereço`,
+    })
+    logradouro: string;
+
+    @IsString()
+    @ApiProperty({
+        example: 'casa',
+        description: `especificidade do local`,
+    })
+    complemento: string;
+
+    @IsString()
+    @ApiProperty({
+        example: '13/07/2000',
+        description: `data inicio`,
+    })
+    datas: string;
+    
 }

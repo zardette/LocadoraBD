@@ -2,9 +2,13 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common"
 import { alteraFilmeDTO } from "./dto/atualizaFilme.dto";
 import { criaFilmeDTO } from "./dto/insereFilme.dto";
 import { ListaFilmesDTO } from "./dto/listaFilmes.dto";
+import { FILME } from "./filme.entity";
+import {v4  as uuid} from 'uuid'
 import { ApiTags } from "@nestjs/swagger";
 import { FilmeService } from "./filme.service";
 import { RetornoCadastroDTO, RetornoObjDTO } from "src/dto/retorno.dto";
+import { atorFilmeDTO } from "./dto/atorFilme.dto";
+import { RetornoElencoDTO } from "src/filme_pessoa/dto/retornoElenco.dto";
 
 @ApiTags('filme')
 @Controller('/filmes')
@@ -36,5 +40,20 @@ export class FilmeController{
     @Post()
     async cria(@Body() dados: criaFilmeDTO):Promise<RetornoCadastroDTO>{
         return this.filmeService.inserir(dados);        
+    }
+
+    @Post('/ator/')
+    async addAtor( @Body() dados: atorFilmeDTO):Promise<RetornoCadastroDTO>{
+        return this.filmeService.addAtor(dados);        
+    }
+
+    @Delete('/ator/')
+    async removeAtor( @Body() dados: atorFilmeDTO):Promise<RetornoCadastroDTO>{
+        return this.filmeService.removeAtor(dados);        
+    }
+
+    @Get('/ator/:id')
+    async listaElencoFilme( @Param('id') id: string):Promise<RetornoElencoDTO>{
+        return this.filmeService.listarAtor(id);        
     }
 }

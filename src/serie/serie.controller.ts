@@ -1,64 +1,42 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { RetornoCadastroDTO } from "src/dto/retorno.dto";
+import { RetornoCadastroDTO, RetornoObjDTO } from "src/dto/retorno.dto";
+import {v4  as uuid} from 'uuid'
 import { alteraSerieDTO } from "./dto/atualizaSerie.dto";
 import { criaSerieDTO } from "./dto/insereSerie.dto";
 import { ListaSeriesDTO } from "./dto/listaSerie.dto";
+import { SERIE } from "./serie.entity";
 import { SerieService } from "./serie.service";
 
 @ApiTags('serie')
 @Controller('/series')
 export class SerieController{    
-    constructor(private clsSeriesArmazenados: SerieService){
-        
+    constructor(private readonly serieService: SerieService){
     }
 
     @Get()
-    async RetornoSerie(){
-        const seriesListados = await this.clsSeriesArmazenados.listar();
-        const listaRetorno = seriesListados.map(
-            serie => new ListaSeriesDTO(
-                serie.ID,
-                serie.NOMESERIE,
-                serie.EPSODIO,
-                serie.TEMPORADA,
-                serie.FILME
-            )
-        );
-        
-        return listaRetorno;
+    async Retorno():Promise<ListaSeriesDTO[]> {
+        return this.serieService.listar();
     }
 
     @Get('/compartilhar/:id')
-    async CompartilharSerie(@Param('id') id: string){
-        const retorno = await this.clsSeriesArmazenados.Compartilhar(id);
-        return{            
-            message: retorno
-        }                
+    async Compartilhar(@Param('id') id: string): Promise<{message:String}>{
+        return this.serieService.Compartilhar(id);
     }
 
     @Delete('/:id')
-    async removeSerie(@Param('id') id: string){
-        const serieRemovido = await this.clsSeriesArmazenados.remove(id)
-
-        return{
-            serie: serieRemovido,
-            message: 'Serie removido'
-        }
+    async remove(@Param('id') id: string): Promise<RetornoObjDTO>{
+        return this.serieService.remover(id);
     }
 
-    @Put('/:id')
-    async atualizaFilme(@Param('id') id: string, @Body() novosDados: alteraSerieDTO){
-        const serieAtualizado = await this.clsSeriesArmazenados.alterar(id, novosDados)
 
-        return{
-            serie: serieAtualizado,
-            message: 'Serie atualizado'
-        }
+    @Put('/:id')
+    async atualiza(@Param('id') id: string, @Body() novosDados: alteraSerieDTO):Promise<RetornoCadastroDTO>{
+        return this.serieService.alterar(id, novosDados);
     }
 
     @Post()
-    async criaSerie(@Body() dados: criaSerieDTO):Promise<RetornoCadastroDTO>{
-        return this.clsSeriesArmazenados.inserir(dados);        
+    async cria(@Body() dados: criaSerieDTO):Promise<RetornoCadastroDTO>{
+        return this.serieService.inserir(dados);        
     }
 }

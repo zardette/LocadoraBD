@@ -1,7 +1,8 @@
 import Datas from "../utils/datas";
 import * as bcrypt from 'bcrypt';
 
-export class UsuarioEntity{
+export class USUARIO{
+    
     id: string;
     nome: string;
     idade: number;
@@ -14,12 +15,12 @@ export class UsuarioEntity{
     logradouro: string;
     complemento: string;
     foto: string;
-    #datas: Datas;
+
     
     constructor(id: string,nome: string,idade: number,cidade: string,email: string,telefone: string,senha: string,foto: string,cep: string, logradouro: string, complemento:string){
         const saltOrRounds = 10;
 
-        this.#datas = new Datas();
+   
         this.id = id;
         this.nome = nome;
         this.idade = idade;
@@ -30,7 +31,7 @@ export class UsuarioEntity{
         this.email = email;
         this.telefone = telefone;
         this.senha = bcrypt.hashSync(senha, saltOrRounds);
-        this.assinatura = this.#datas.dataAtual();
+        this.assinatura = this.assinatura
         this.foto = foto;
     }
 
@@ -45,16 +46,7 @@ export class UsuarioEntity{
     }
 
     retornaAssinatura(){
-        return this.#datas.formatar(this.assinatura);
-    }
-
-    validarAssinatura(){
-        var dias = this.#datas.diferencaDias(this.assinatura)
-        return (dias >= 1)
-    }
-
-    adicionarAssinatura(dias){
-        this.assinatura = this.#datas.adicionarDias(this.assinatura,dias)
+        return this.assinatura;
     }
 
 }
