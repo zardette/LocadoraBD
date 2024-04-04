@@ -78,7 +78,7 @@ export class UsuarioService {
       .then((result) => {
         return <RetornoObjDTO>{
           return: usuario,
-          message: 'Interesse excluido!',
+          message: 'usuario excluido!',
         };
       })
       .catch((error) => {
