@@ -13,6 +13,7 @@ import { PessoaService } from "src/pessoa/pessoa.service";
 
 @Injectable()
 export class UsuarioService {
+  #usuarios = [];
   constructor(
     @Inject('USUARIO_REPOSITORY')
     private usuarioRepository: Repository<USUARIO>,
@@ -168,4 +169,33 @@ async trocaSenha(EMAIL: string, SENHA: string) {
       return true; 
   } else {
       return false; 
-  }}}
+  }}
+
+  private buscaPorID(ID: string) {
+    const possivelUsuario = this.#usuarios.find(
+      usuarioSalvo => usuarioSalvo.ID === ID
+    )
+
+    if (!possivelUsuario) {
+      throw new Error('Usuario nao encontrado')
+    }
+
+    return possivelUsuario;
+  }
+
+  adicionarAssinatura(id: string, dias: BigInteger) {
+    const usuario = this.buscaPorID(id);
+
+    usuario.adicionarAssinatura(dias);
+
+    return usuario.retornaAssinatura();
+  }
+
+  validaAssinatura(id: string) {
+    const usuario = this.buscaPorID(id);
+
+    return {
+      valida: usuario.validarAssinatura(),
+      vencimento: usuario.retornaAssinatura()
+    };
+  }}
