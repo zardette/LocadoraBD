@@ -1,42 +1,40 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsInt, IsNotEmpty, IsNumberString, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
-import { ArquivoValido } from "src/files/validacao/arquivo-valido.validator";
+import { IsEmail, IsNotEmptyObject, IsString, MaxLength, MinLength } from "class-validator";
+import { CriaPessoaDTO } from "src/pessoa/dto/criaPessoa.dto";
 import { EmailUnico } from "../validacao/email-unico.validator";
 import { SenhaForte } from "../validacao/strongpass.validator";
-import { CriaPessoaDTO } from "src/pessoa/dto/criaPessoa.dto";
-
 
 export class criaUsuarioDTO{
-    @IsString({message: "nome tem que ser string"})
-    @IsNotEmpty({message: "nome Não pode ser vazio"})
-    @ApiProperty({
-        example: 'Roberto Silva',
-        description: `O nome é usado para identificar o usuário, em telas, cadastros e outros.`,
-    })
-    nome:string;
     
-    @IsInt()
-    @ApiProperty({
-        example: '18',
-        description: `A idade é utilizada para identificar a idade do usuário, deve ser numérico.`,
-    })
-    idade: number;
-
     @IsString()
     @ApiProperty({
         example: 'São Paulo',
         description: `A cidade é utilizada para identificar a localização do usuário.`,
     })
-    cidade: string;
+    CIDADE: string;
 
-    @IsNumberString()
+    @IsString()
+    @ApiProperty({
+        example: 'R. Antônio Garcia, 39 - Quadra 6 - Vila Santa Teresinha',
+        description: `ENDEREÇO.`,
+    })
+    ENDERECO: string;
+
+    @IsString()
+    @ApiProperty({
+        example: '',
+        description: `ASSINATURA.`,
+    })
+    ASSINATURA: string;
+
+    @IsString()
     @MinLength(8,{message:'CEP precisa ter 8 numeros'})
     @MaxLength(8,{message:'CEP precisa ter 8 numeros'})
     @ApiProperty( {
         example: '17010150',
         description: `O CEP é utilizado para preencher o endereço.`,
     })
-    cep:string;
+    CEP:string;
 
     @IsEmail(undefined,{message:"email é inválido"})
     @EmailUnico({message:"O email informado já existe"})
@@ -44,7 +42,7 @@ export class criaUsuarioDTO{
         example: 'teste@teste.com',
         description: `O email é utilizado para o login e identificação do usuário. Deve ser único.`,
     })
-    email: string;
+    EMAIL: string;
 
     @IsString()
     @ApiProperty({
@@ -52,7 +50,7 @@ export class criaUsuarioDTO{
         description: `O telefone pode ser usado para se comunicar com o usuário.`,
         
     })
-    telefone: string;
+    TELEFONE: string;
 
     @MinLength(6,{message: "Senha precisa de pelo menos 6 digitos"})
     @SenhaForte({message: "Senha muito fraca"})
@@ -60,54 +58,8 @@ export class criaUsuarioDTO{
         example: 'Asd@444555666',
         description: `A senha deve conter pelo menos 6 caracteres, contar com letras minusculas e maiusculas, numeros e caracteres especiais.`,
     })
-    senha: string; 
+    SENHA: string; 
 
-    
-    @IsOptional()
-    @ArquivoValido({message:'Arquivo não encontrado ou inválido'})
-    @ApiProperty({
-        example: 'nomearquivo-idarquivo.png',
-        description: `Esse campo é responsável pela foto do usuário, para ser enviado o dado correto é necessário que seja feito o upload pelo modulo FILES.`,
-    })
-    foto: string;
-    
-    @IsString()
-    @ApiProperty({
-        example: 'premium',
-        description: `tipo de assinatura`,
-    })
-    assinatura: Date;
-
-    @IsString()
-    @ApiProperty({
-        example: 'AV. Nações unidas',
-        description: `endereço`,
-    })
-    logradouro: string;
-
-    @IsString()
-    @ApiProperty({
-        example: 'casa',
-        description: `especificidade do local`,
-    })
-    complemento: string;
-
-    @IsString()
-    @ApiProperty({
-        example: '13/07/2000',
-        description: `data inicio`,
-    })
-    datas: string;
-
-    @IsNotEmpty({message:"Devem ser informados os dados do usuario"})
-    @ApiProperty({
-        example: `{
-            "NOME": "Rebeca",
-            "nascimento": 12/07/1980,
-            "Pais": "Brasil",
-          }`,
-        description: `Essas são informações básicas para cada usuario`,
-    })
-    pessoa: CriaPessoaDTO;
-    
+    @IsNotEmptyObject()
+    dadosPessoa: CriaPessoaDTO;
 }

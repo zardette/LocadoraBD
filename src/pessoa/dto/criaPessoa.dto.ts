@@ -1,4 +1,4 @@
-import { IsDate, IsEmail, IsInt, IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsDate, IsDateString, IsEmail, IsInt, IsNotEmpty, IsString, MinLength } from "class-validator";
 
 
 export class CriaPessoaDTO{
@@ -10,7 +10,7 @@ export class CriaPessoaDTO{
     @IsNotEmpty({message: "Descrição não pode ser vazio"})
     DESCRICAO: string;
 
-    @IsDate()
+    @IsDateString()
     @IsNotEmpty({message: "Nascimento não pode ser vazio"})
     NASCIMENTO: Date;
 

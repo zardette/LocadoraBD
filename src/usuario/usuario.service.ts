@@ -1,175 +1,72 @@
-import { Inject, Injectable } from "@nestjs/common";
-import { IsUUID } from "class-validator";
-import { RetornoCadastroDTO, RetornoObjDTO } from "src/dto/retorno.dto";
-import Datas from "src/utils/datas";
-import { Repository } from "typeorm";
+import { Injectable, Inject } from '@nestjs/common';
+import { Repository } from 'typeorm';
 import { v4 as uuid } from 'uuid';
-import { AlteraUsuarioDTO } from "./dto/atualizaUsuario.dto";
-import { ListaUsuarioDTO } from "./dto/listaUsuario.dto";
-import { criaUsuarioDTO } from "./dto/usuario.dto";
-import {USUARIO} from "./usuario.entity"
-import { PESSOA } from "src/pessoa/pessoa.entity";
-import { PessoaService } from "src/pessoa/pessoa.service";
+import { RetornoCadastroDTO, RetornoObjDTO } from 'src/dto/retorno.dto';
+import { Usuario } from './usuario.entity';
+import { criaUsuarioDTO } from './dto/usuario.dto';
+import { PessoaService } from 'src/pessoa/pessoa.service';
+import { AlteraUsuarioDTO } from './dto/atualizaUsuario.dto';
+import { PESSOA } from 'src/pessoa/pessoa.entity';
+import { HttpService } from '@nestjs/axios';
+import Datas from 'src/utils/datas';
+
 
 @Injectable()
 export class UsuarioService {
   #usuarios = [];
+
   constructor(
     @Inject('USUARIO_REPOSITORY')
-    private usuarioRepository: Repository<USUARIO>,
-
+    private usuarioRepository: Repository<Usuario>,
+    private httpService: HttpService,
+    private datas: Datas,
     @Inject('PESSOA_REPOSITORY')
-    private pessoaRepository: Repository<PESSOA>,  
-    private readonly PessoaService: PessoaService,
-  ) {}
+    private pessoaRepository: Repository<PESSOA>,
+    private readonly pessoaService: PessoaService,
 
-  async listar(): Promise<ListaUsuarioDTO[]> {
-    var usuarioListados = await this.usuarioRepository.find();
-    return usuarioListados.map(
-      (usuario) =>
-        new ListaUsuarioDTO(
-          usuario.ID,
-          usuario.CIDADE,
-          usuario.EMAIL,
-          usuario.TELEFONE,
-          usuario.SENHA,
-          usuario.ASSINATURA,
-          usuario.CEP,
-        ),
-    );
+  ) { }
+
+  async listar(): Promise<Usuario[]> {
+    return this.usuarioRepository.find();
   }
 
   async inserir(dados: criaUsuarioDTO): Promise<RetornoCadastroDTO> {
-    let pessoa = await this.PessoaService.inserir(dados.pessoa)
-    let usuario = new USUARIO();
+    let usuario = new Usuario();
+    let retornoPessoa = await this.pessoaService.inserir(dados.dadosPessoa);
     usuario.ID = uuid();
-    usuario.CIDADE = dados.cidade;
-    usuario.EMAIL = dados.email;
-    usuario.TELEFONE = dados.telefone;
-    usuario.SENHA = dados.senha;
-    usuario.ASSINATURA = dados.assinatura;
-    usuario.CEP = dados.cep;
-    usuario.pessoa = await this.PessoaService.localizarID(pessoa.id);
+    usuario.PESSOA = await this.pessoaService.localizarID(retornoPessoa.id)
+    usuario.EMAIL = dados.EMAIL;
+    usuario.SENHA = dados.SENHA;
+    usuario.TELEFONE = dados.TELEFONE;
+    usuario.CIDADE = dados.CIDADE;
+    usuario.ENDERECO = dados.ENDERECO;
+    usuario.CEP = dados.CEP;
+    usuario.adicionarAssinatura(dados.ASSINATURA)
+    usuario.trocaSenha(dados.SENHA)
 
-    
 
-    return this.usuarioRepository
-      .save(usuario)
+    return this.usuarioRepository.save(usuario)
       .then((result) => {
         return <RetornoCadastroDTO>{
           id: usuario.ID,
-          message: 'usuario cadastrado!',
+          message: "Pessoa cadastrado!"
         };
       })
       .catch((error) => {
         return <RetornoCadastroDTO>{
-          id: '',
-          message: 'Houve um erro ao cadastrar.' + error.message,
-        };
-      });
-  }
-
-  async remover(id: string): Promise<RetornoObjDTO> {
-    const usuario = await this.localizarID(id);
-
-    return this.usuarioRepository
-      .remove(usuario)
-      .then((result) => {
-        return <RetornoObjDTO>{
-          return: usuario,
-          message: 'usuario  excluido!',
+          id: "",
+          message: "Houve um erro ao cadastrar." + error.message
         };
       })
-      .catch((error) => {
-        return <RetornoObjDTO>{
-          return: usuario,
-          message: 'Houve um erro ao excluir.' + error.message,
-        };
-      });
   }
 
-  async alterar(
-    id: string,
-    dados: AlteraUsuarioDTO,
-  ): Promise<RetornoCadastroDTO> {
-    const usuario = await this.localizarID(id);
-
-    Object.entries(dados).forEach(([chave, valor]) => {
-      if (chave === 'id') {
-        return;
-      }
-
-      if (valor) {
-        usuario[chave] = valor;
-      }
-    });
-
-    return this.usuarioRepository
-      .save(usuario)
-      .then((result) => {
-        return <RetornoCadastroDTO>{
-          id: usuario.ID,
-          message: 'usuario alterado!',
-        };
-      })
-      .catch((error) => {
-        return <RetornoCadastroDTO>{
-          id: '',
-          message: 'Houve um erro ao alterar: ' + error.message,
-        };
-      });
-  }
-
-  
-  localizarID(ID: string): Promise<USUARIO> {
+  localizarID(ID: string): Promise<Usuario> {
     return this.usuarioRepository.findOne({
       where: {
         ID,
       },
     });
   }
-
-  async validaEmail(EMAIL: string) {
-    const possivelUsuario = await this.usuarioRepository.findOne({
-      where: {
-        EMAIL,
-      },
-    });
-    return (possivelUsuario !== null);
-  }
-
-  
-
-  async validaLogin(email: string, senha: string): Promise<RetornoObjDTO> {
-    const usuario = await this.localizarEmail (email);
-    var objRetorno;
-    if (usuario) {
-      objRetorno = [usuario, usuario.login(senha)]
-    }
-    return <RetornoObjDTO>{
-      message: objRetorno[1] ? "login efetuado com sucesso" : "usuario ou senha inválidos",
-      return: objRetorno[1] ? objRetorno [0] : null
-    };
-
-  }
-
-  async localizarEmail(EMAIL: string) {
-    const usuariovalido = await this.usuarioRepository.findOne({
-      where: {
-        EMAIL,
-      },
-    });
-    return usuariovalido;
-}
-
-async trocaSenha(EMAIL: string, SENHA: string) {
-    const usuario = this.localizarEmail(EMAIL);
-  if (usuario) {
-      (await usuario).trocaSenha(SENHA); 
-      return true; 
-  } else {
-      return false; 
-  }}
 
   private buscaPorID(ID: string) {
     const possivelUsuario = this.#usuarios.find(
@@ -181,6 +78,109 @@ async trocaSenha(EMAIL: string, SENHA: string) {
     }
 
     return possivelUsuario;
+  }
+
+  localizarNome(NOME: string): Promise<PESSOA> {
+    return this.pessoaRepository.findOne({
+      where: {
+        NOME,
+      },
+    });
+  }
+
+  localizarEmail(EMAIL: string): Promise<Usuario> {
+    return this.usuarioRepository.findOne({
+      where: {
+        EMAIL,
+      },
+    });
+  }
+
+  async remover(id: string): Promise<RetornoObjDTO> {
+    const usuario = await this.localizarID(id);
+
+    return this.usuarioRepository.remove(usuario)
+      .then((result) => {
+        return <RetornoObjDTO>{
+          return: usuario,
+          message: "Pessoa excluido!"
+        };
+      })
+      .catch((error) => {
+        return <RetornoObjDTO>{
+          return: usuario,
+          message: "Houve um erro ao excluir." + error.message
+        };
+      });
+  }
+
+  async alterar(id: string, dados: AlteraUsuarioDTO): Promise<RetornoCadastroDTO> {
+    const pessoa = await this.localizarID(id);
+
+    Object.entries(dados).forEach(
+      ([chave, valor]) => {
+        if (chave === 'id') {
+          return;
+        }
+
+        pessoa[chave] = valor;
+      }
+    )
+
+    return this.usuarioRepository.save(pessoa)
+      .then((result) => {
+        return <RetornoCadastroDTO>{
+          id: pessoa.ID,
+          message: "Pessoa alterado!"
+        };
+      })
+      .catch((error) => {
+        return <RetornoCadastroDTO>{
+          id: "",
+          message: "Houve um erro ao alterar." + error.message
+        };
+      });
+  }
+
+  async validaEmail(EMAIL: string) {
+    const possivelUsuario = await this.usuarioRepository.findOne({
+      where: {
+        EMAIL,
+      },
+    });
+    return (possivelUsuario !== null);
+  }
+
+  async removeUsuario(ID: string): Promise<RetornoObjDTO> {
+    const usuario = await this.localizarID(ID);
+
+    return this.usuarioRepository.remove(usuario)
+      .then((result) => {
+        return <RetornoObjDTO>{
+          return: usuario,
+          message: "Pessoa excluido!"
+        };
+      })
+      .catch((error) => {
+        return <RetornoObjDTO>{
+          return: usuario,
+          message: "Houve um erro ao excluir." + error.message
+        };
+      });
+  }
+
+  async validarLogin(EMAIL: string, SENHA: string) {
+    const usuario = await this.localizarEmail(EMAIL);
+    var objRetorno;
+    if (usuario) {
+      objRetorno = [usuario, await usuario.login(SENHA)];
+    }
+
+    return <RetornoObjDTO>{
+      message: objRetorno[1] ? 'Login Efetuado' : 'Usuario ou senha invalidos',
+      return: objRetorno[1] ? objRetorno[0] : null
+    }
+
   }
 
   adicionarAssinatura(id: string, dias: BigInteger) {
@@ -198,4 +198,25 @@ async trocaSenha(EMAIL: string, SENHA: string) {
       valida: usuario.validarAssinatura(),
       vencimento: usuario.retornaAssinatura()
     };
-  }}
+  }
+
+
+  atualizaUSuario(id: string, dadosAtualizacao: Partial<Usuario>) {
+    const usuario = this.buscaPorID(id);
+
+    Object.entries(dadosAtualizacao).forEach(
+      ([chave, valor]) => {
+        if (chave === 'ID') {
+          return
+        } else if (chave === 'SENHA') {
+          usuario.trocaSenha(valor);
+          return
+        }
+
+        usuario[chave] = valor;
+      }
+    )
+
+    return usuario;
+  }
+}

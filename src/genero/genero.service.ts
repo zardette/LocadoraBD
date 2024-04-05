@@ -9,6 +9,7 @@ import { AlteraGeneroDTO } from './dto/atualizaGenero.dto';
 
 @Injectable()
 export class GeneroService {
+
   constructor(
     @Inject('GENERO_REPOSITORY')
     private generoRepository: Repository<GENERO>,

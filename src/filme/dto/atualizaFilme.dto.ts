@@ -1,8 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsString, MinLength } from "class-validator";
 
-
-
 export class alteraFilmeDTO{
     @IsString()
     @IsOptional()
@@ -40,8 +38,8 @@ export class alteraFilmeDTO{
     @IsString()
     @IsOptional()
     @ApiPropertyOptional({
-        example: 'Ação',
-        description: `Nome do genero do filme`,
+        example: '20b4d2b8-c682-4e64-bc05-a32b76d4ba13',
+        description: `ID do genero do filme`,
     })
     GENERO: string;
 

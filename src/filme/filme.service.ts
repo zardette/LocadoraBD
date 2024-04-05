@@ -13,7 +13,6 @@ import { PessoaService } from 'src/pessoa/pessoa.service';
 import { FILME_PESSOAService } from 'src/filme_pessoa/filme_pessoa.service';
 import { RetornoElencoDTO } from 'src/filme_pessoa/dto/retornoElenco.dto';
 
-
 @Injectable()
 export class FilmeService {
   constructor(
@@ -37,20 +36,20 @@ export class FilmeService {
   }
 
   async Compartilhar(id: string){
-    var filme = await (this.filmeRepository 
+    var filme = await (this.filmeRepository // select marca.id as ID, marca.nome AS NOME_, pes_f.nome from marca ......
       .createQueryBuilder('filme')
       .select('filme.ID', 'ID')
-      .addSelect('filme.NOME','NOME_FILME')
+      .addSelect('filme.NOME','NOME_PRODUTO')
       .addSelect('filme.SINOPSE','SINOPSE')
       .addSelect('filme.ANO','ANO')
       .addSelect('filme.DURACAO','DURACAO')
       .addSelect('gen.NOME','GENERO')
       .leftJoin('genero', 'gen','filme.idgenero = gen.id')      
-      .andWhere('filme.ID = :ID',{ ID: `${id}` })               
+      .andWhere('filme.ID = :ID',{ ID: `${id}` })         
       .getRawOne());
 
     return{            
-      message: `Estou assistindo o filme ${filme.NOME_FILME} que é do genero ${filme.GENERO} que conta a seguinte história: ${filme.SINOPSE} foi lançado em ${filme.ANO} e tem duração de ${filme.DURACAO} minutos. Assista também!!` 
+      message: `Estou assistindo o filme ${filme.NOME} que é do genero ${filme.GENERO} que conta a seguinte história: ${filme.SINOPSE} foi lançado em ${filme.ANO} e tem duração de ${filme.DURACAO} minutos. Assista também!!` 
     }
   }
 
@@ -88,7 +87,6 @@ export class FilmeService {
     });
   }
 
-
   async remover(id: string): Promise<RetornoObjDTO> {
     const filme = await this.localizarID(id);
     
@@ -106,7 +104,6 @@ export class FilmeService {
       };
     });  
   }
-
   async addAtor(dados: atorFilmeDTO): Promise<RetornoCadastroDTO> {
     const filme = await this.localizarID(dados.IDFILME);
     const ator = await this.atorService.localizarID(dados.IDATOR);
@@ -137,13 +134,11 @@ export class FilmeService {
           }
 
           if(chave=== 'GENERO'){
-            filme['GENERO'] = await this.generoService.localizarNome(valor);
+            filme['GENERO'] = await this.generoService.localizarID(valor);
             return;
            }
 
-          if (valor) 
-           filme[chave] = valor;
-          
+          filme[chave] = valor;
       }
     )
 

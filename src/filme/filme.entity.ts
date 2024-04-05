@@ -19,7 +19,7 @@ export class FILME{
     @Column({length: 255})
     ANO: string;
     
-    @ManyToOne(() => GENERO, genero => genero.filmes)
+    @ManyToOne(() => GENERO, genero => genero.produtos)
     @JoinColumn({ name: 'IDGENERO', referencedColumnName:'ID'})
     genero: GENERO;
 
