@@ -3,6 +3,7 @@ import { IsEmail, IsInt, IsNotEmpty, IsNumberString, IsOptional, IsString, MaxLe
 import { ArquivoValido } from "src/files/validacao/arquivo-valido.validator";
 import { EmailUnico } from "../validacao/email-unico.validator";
 import { SenhaForte } from "../validacao/strongpass.validator";
+import { CriaPessoaDTO } from "src/pessoa/dto/criaPessoa.dto";
 
 
 export class criaUsuarioDTO{
@@ -97,5 +98,16 @@ export class criaUsuarioDTO{
         description: `data inicio`,
     })
     datas: string;
+
+    @IsNotEmpty({message:"Devem ser informados os dados do usuario"})
+    @ApiProperty({
+        example: `{
+            "NOME": "Rebeca",
+            "nascimento": 12/07/1980,
+            "Pais": "Brasil",
+          }`,
+        description: `Essas são informações básicas para cada usuario`,
+    })
+    filme: CriaPessoaDTO;
     
 }

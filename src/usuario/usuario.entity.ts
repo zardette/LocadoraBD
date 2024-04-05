@@ -1,52 +1,39 @@
+import { Column, JoinColumn, OneToOne, PrimaryColumn } from "typeorm";
 import Datas from "../utils/datas";
 import * as bcrypt from 'bcrypt';
+import { PESSOA } from "src/pessoa/pessoa.entity";
 
 export class USUARIO{
-    
-    id: string;
-    nome: string;
-    idade: number;
-    cidade: string;
-    email: string;
-    telefone: string;
-    senha: string; 
-    assinatura: Date;
-    cep: string;
-    logradouro: string;
-    complemento: string;
-    foto: string;
+    @PrimaryColumn()
+    ID: string;
 
-    
-    constructor(id: string,nome: string,idade: number,cidade: string,email: string,telefone: string,senha: string,foto: string,cep: string, logradouro: string, complemento:string){
-        const saltOrRounds = 10;
+    @Column()
+    CIDADE: string
 
+    @Column()
+    EMAIL: string;
+
+    @Column()
+    TELEFONE: string;
+
+    @Column()
+    SENHA: string;
    
-        this.id = id;
-        this.nome = nome;
-        this.idade = idade;
-        this.cidade = cidade;
-        this.cep = cep;
-        this.logradouro = logradouro;
-        this.complemento = complemento;
-        this.email = email;
-        this.telefone = telefone;
-        this.senha = bcrypt.hashSync(senha, saltOrRounds);
-        this.assinatura = this.assinatura
-        this.foto = foto;
-    }
+    @Column()
+    ASSINATURA: Date;
 
+    @Column()
+    CEP: string;
 
-    login(senha){
-        return bcrypt.compareSync(senha,this.senha);
-    }
+    @OneToOne(() => PESSOA)
+    @JoinColumn({ name: 'IDPESSOA', referencedColumnName:'ID'})
+    filme: PESSOA;
 
-    trocaSenha(senha){
-        const saltOrRounds = 10;
-        this.senha = bcrypt.hashSync(senha, saltOrRounds);
-    }
+    login(SENHA){
+        return bcrypt.compareSync(SENHA,this.SENHA);}
 
-    retornaAssinatura(){
-        return this.assinatura;
-    }
-
+        trocaSenha(SENHA){
+            const saltOrRounds = 10;
+            this.SENHA = bcrypt.hashSync(SENHA,saltOrRounds);}
+    
 }

@@ -8,12 +8,18 @@ import { AlteraUsuarioDTO } from "./dto/atualizaUsuario.dto";
 import { ListaUsuarioDTO } from "./dto/listaUsuario.dto";
 import { criaUsuarioDTO } from "./dto/usuario.dto";
 import {USUARIO} from "./usuario.entity"
+import { PESSOA } from "src/pessoa/pessoa.entity";
+import { PessoaService } from "src/pessoa/pessoa.service";
 
 @Injectable()
 export class UsuarioService {
   constructor(
     @Inject('USUARIO_REPOSITORY')
     private usuarioRepository: Repository<USUARIO>,
+
+    @Inject('PESSOA_REPOSITORY')
+    private generoRepository: Repository<PESSOA>,  
+    private readonly generoService: PessoaService,
   ) {}
 
   async listar(): Promise<ListaUsuarioDTO[]> {
@@ -21,36 +27,26 @@ export class UsuarioService {
     return usuarioListados.map(
       (usuario) =>
         new ListaUsuarioDTO(
-          usuario.id,
-          usuario.nome,
-          usuario.idade,
-          usuario.cidade,
-          usuario.email,
-          usuario.telefone,
-          usuario.senha,
-          usuario.assinatura,
-          usuario.cep,
-          usuario.logradouro,
-          usuario.complemento,
-          usuario.foto
+          usuario.ID,
+          usuario.CIDADE,
+          usuario.EMAIL,
+          usuario.TELEFONE,
+          usuario.SENHA,
+          usuario.ASSINATURA,
+          usuario.CEP,
         ),
     );
   }
 
   async inserir(dados: criaUsuarioDTO): Promise<RetornoCadastroDTO> {
     let usuario = new USUARIO();
-    usuario.id = uuid();
-    usuario.nome = dados.nome;
-    usuario.idade = dados.idade;
-    usuario.cidade = dados.cidade;
-    usuario.email = dados.email;
-    usuario.telefone = dados.telefone;
-    usuario.senha = dados.senha;
-    usuario.assinatura = dados.assinatura;
-    usuario.cep = dados.cep;
-    usuario.logradouro = dados.logradouro;
-    usuario.complemento = dados.complemento;
-    usuario.foto = dados.foto;
+    usuario.ID = uuid();
+    usuario.CIDADE = dados.cidade;
+    usuario.EMAIL = dados.email;
+    usuario.TELEFONE = dados.telefone;
+    usuario.SENHA = dados.senha;
+    usuario.ASSINATURA = dados.assinatura;
+    usuario.CEP = dados.cep;
 
     
 
@@ -58,7 +54,7 @@ export class UsuarioService {
       .save(usuario)
       .then((result) => {
         return <RetornoCadastroDTO>{
-          id: usuario.id,
+          id: usuario.ID,
           message: 'usuario cadastrado!',
         };
       })
@@ -78,7 +74,7 @@ export class UsuarioService {
       .then((result) => {
         return <RetornoObjDTO>{
           return: usuario,
-          message: 'usuario excluido!',
+          message: 'usuario  excluido!',
         };
       })
       .catch((error) => {
@@ -109,7 +105,7 @@ export class UsuarioService {
       .save(usuario)
       .then((result) => {
         return <RetornoCadastroDTO>{
-          id: usuario.id,
+          id: usuario.ID,
           message: 'usuario alterado!',
         };
       })
@@ -122,18 +118,18 @@ export class UsuarioService {
   }
 
   
-  localizarID(id: string): Promise<USUARIO> {
+  localizarID(ID: string): Promise<USUARIO> {
     return this.usuarioRepository.findOne({
       where: {
-        id,
+        ID,
       },
     });
   }
 
-  async validaEmail(email: string) {
+  async validaEmail(EMAIL: string) {
     const possivelUsuario = await this.usuarioRepository.findOne({
       where: {
-        email,
+        EMAIL,
       },
     });
     return (possivelUsuario !== null);
@@ -154,19 +150,19 @@ export class UsuarioService {
 
   }
 
-  async localizarEmail(email: string) {
+  async localizarEmail(EMAIL: string) {
     const usuariovalido = await this.usuarioRepository.findOne({
       where: {
-        email,
+        EMAIL,
       },
     });
     return usuariovalido;
 }
 
-async trocaSenha(email: string, senha: string) {
-    const usuario = this.localizarEmail(email);
+async trocaSenha(EMAIL: string, SENHA: string) {
+    const usuario = this.localizarEmail(EMAIL);
   if (usuario) {
-      (await usuario).trocaSenha(senha); 
+      (await usuario).trocaSenha(SENHA); 
       return true; 
   } else {
       return false; 
