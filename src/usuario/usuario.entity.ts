@@ -27,7 +27,7 @@ export class USUARIO{
 
     @OneToOne(() => PESSOA)
     @JoinColumn({ name: 'IDPESSOA', referencedColumnName:'ID'})
-    filme: PESSOA;
+    pessoa: PESSOA;
 
     login(SENHA){
         return bcrypt.compareSync(SENHA,this.SENHA);}

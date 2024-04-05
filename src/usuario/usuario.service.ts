@@ -18,8 +18,8 @@ export class UsuarioService {
     private usuarioRepository: Repository<USUARIO>,
 
     @Inject('PESSOA_REPOSITORY')
-    private generoRepository: Repository<PESSOA>,  
-    private readonly generoService: PessoaService,
+    private pessoaRepository: Repository<PESSOA>,  
+    private readonly PessoaService: PessoaService,
   ) {}
 
   async listar(): Promise<ListaUsuarioDTO[]> {
@@ -39,6 +39,7 @@ export class UsuarioService {
   }
 
   async inserir(dados: criaUsuarioDTO): Promise<RetornoCadastroDTO> {
+    let pessoa = await this.PessoaService.inserir(dados.pessoa)
     let usuario = new USUARIO();
     usuario.ID = uuid();
     usuario.CIDADE = dados.cidade;
@@ -47,6 +48,7 @@ export class UsuarioService {
     usuario.SENHA = dados.senha;
     usuario.ASSINATURA = dados.assinatura;
     usuario.CEP = dados.cep;
+    usuario.pessoa = await this.PessoaService.localizarID(pessoa.id);
 
     
 

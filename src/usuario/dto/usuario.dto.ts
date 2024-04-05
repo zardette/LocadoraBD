@@ -108,6 +108,6 @@ export class criaUsuarioDTO{
           }`,
         description: `Essas são informações básicas para cada usuario`,
     })
-    filme: CriaPessoaDTO;
+    pessoa: CriaPessoaDTO;
     
 }
